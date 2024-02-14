@@ -1,62 +1,66 @@
 package it.epicode.s6d1.service;
 
 
+import it.epicode.s6d1.exception.NotFoundException;
 import it.epicode.s6d1.model.Autore;
 import it.epicode.s6d1.model.Blog;
+import it.epicode.s6d1.model.BlogRequest;
+import it.epicode.s6d1.repository.BlogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+
 
 @Service
 public class BlogService {
     @Autowired
     AutoreService autoreService;
-    List<Blog> blogs = new ArrayList<>();
+    @Autowired
+    BlogRepository blogRepository;
 
-    public List<Blog> searchAllBlogs(){
-        return blogs;
+    public Page<Blog> searchAllBlogs(Pageable pageable){
+        return blogRepository.findAll(pageable);
     }
 
-    public Blog searchBlogForId(int id) throws NoSuchElementException {
-        Optional<Blog> b = blogs.stream().filter(auto -> auto.getId()==id).findAny();
-        if (b.isPresent()){
-            return b.get();
-        }else{
-             throw new NoSuchElementException("blog non trovato");
-        }
+    public Blog searchBlogForId(int id) throws NotFoundException {
+        return blogRepository.findById(id).orElseThrow(()->new NotFoundException("Blog con id "+id+" non trovato"));
     }
 
-    public void saveBlog(Blog b) throws  RuntimeException{
-        if (b.getAutore() != null){
-            blogs.add(b);
-        }else {
-            throw new RuntimeException("Al blog non è associato nessun autore");
-        }
+    public Blog saveBlog(BlogRequest b) throws  NotFoundException{
+        Autore autore = autoreService.searchAuthorById(b.getIdAutore());
+
+        Blog blog = new Blog();
+        blog.setTempoDiLettura(b.getTempoDiLettura());
+        blog.setTitolo(b.getTitolo());
+        blog.setContenuto(b.getContenuto());
+        blog.setCategoria(b.getCategoria());
+        blog.setCover(b.getCover());
+        blog.setAutore(autore);
+        return blogRepository.save(blog);
     }
 
-    public Blog updateBlog(int id, Blog blog){
-        Blog b = searchBlogForId(id);
+    public Blog updateBlog(int id, BlogRequest b) throws NotFoundException {
 
-        Autore a = autoreService.searchAuthorById(blog.getAutore().getId());
+        Blog blog = searchBlogForId(id);
 
-        b.setAutore(a);
+        Autore a = autoreService.searchAuthorById(b.getIdAutore());
 
-        b.setCategoria(blog.getCategoria());
-        b.setContenuto(blog.getContenuto());
-        b.setCover(blog.getCover());
-        b.setTitolo(blog.getTitolo());
-        b.setTempoDiLettura(blog.getTempoDiLettura());
+        blog.setAutore(a);
 
-        return  b;
+        blog.setCategoria(b.getCategoria());
+        blog.setContenuto(b.getContenuto());
+        blog.setCover(b.getCover());
+        blog.setTitolo(b.getTitolo());
+        blog.setTempoDiLettura(b.getTempoDiLettura());
+
+        return  blogRepository.save(blog);
     }
 
-    public void deleteBlog(int id){
-        Blog b = searchBlogForId(id);
-        blogs.remove(b);
+    public void deleteBlog(int id) throws NotFoundException {
+        Blog blog = searchBlogForId(id);
+        blogRepository.delete(blog);
     }
 
 

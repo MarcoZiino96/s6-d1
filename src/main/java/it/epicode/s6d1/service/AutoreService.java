@@ -1,7 +1,12 @@
 package it.epicode.s6d1.service;
 
 
+import it.epicode.s6d1.exception.NotFoundException;
 import it.epicode.s6d1.model.Autore;
+import it.epicode.s6d1.repository.AutoreRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,35 +17,32 @@ import java.util.Optional;
 @Service
 public class AutoreService {
 
-    private List<Autore> autori = new ArrayList<>();
+    @Autowired
+    AutoreRepository autoreRepository;
 
-    public List<Autore> searchAllAuthor(){return autori;};
+    public Page<Autore> searchAllAuthor(Pageable pagebale){return autoreRepository.findAll(pagebale);}
 
-    public Autore searchAuthorById(int id) throws NoSuchElementException{
-        Optional<Autore> a = autori.stream().filter(autore -> autore.getId()== id).findAny();
-        if(a.isPresent()){
-            return a.get();
-        }else{
-            throw new NoSuchElementException("Autore non trovato");
-        }
+    public Autore searchAuthorById(int id) throws NotFoundException {
+    return autoreRepository.findById(id).orElseThrow(()-> new NotFoundException("Autore con id "+id+" non trovato"));
     }
 
-    public void salvaAutore(Autore a){
-        autori.add(a);
+    public Autore salvaAutore(Autore a){
+        return autoreRepository.save(a);
     }
 
-    public void deleteAuthor(int id){
+    public void deleteAuthor(int id) throws NotFoundException {
         Autore a = searchAuthorById(id);
-        autori.remove(a);
+        autoreRepository.delete(a);
     }
 
-    public Autore updateAutore(int id, Autore a){
+    public Autore updateAutore(int id, Autore a) throws NotFoundException {
         Autore autore = searchAuthorById(id);
+
         autore.setNome(a.getNome());
         autore.setCognome(a.getCognome());
         autore.setEmail(a.getEmail());
         autore.setDataDiNascita(a.getDataDiNascita());
-        return a;
+        return autoreRepository.save(a);
     }
 
 }

@@ -1,21 +1,32 @@
 package it.epicode.s6d1.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 
 
+@Entity
 @Data
 public class Autore {
 
-    private int id = new Random().nextInt(1, Integer.MAX_VALUE);
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
     private String nome;
     private String cognome;
-
     private String email;
     private LocalDate dataDiNascita;
     private String avatar;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "autore")
+    private List<Blog> blogs;
+
+
 
     public Autore(String nome, String cognome, String email, LocalDate dataDiNascita) {
         this.nome = nome;

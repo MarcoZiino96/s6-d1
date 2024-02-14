@@ -1,14 +1,16 @@
 package it.epicode.s6d1.controller;
 
+import it.epicode.s6d1.exception.NotFoundException;
 import it.epicode.s6d1.model.Autore;
+import it.epicode.s6d1.model.CustomResponse;
 import it.epicode.s6d1.service.AutoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+
 
 
 @RestController
@@ -17,35 +19,61 @@ public class AutoreController {
     AutoreService autoreService;
 
     @GetMapping("/autore")
-    public List<Autore> getAllAuthors() {
-        return autoreService.searchAllAuthor();
+    public ResponseEntity<CustomResponse> getAllAuthors(Pageable pageable) {
+        try{
+        return CustomResponse.success(HttpStatus.OK.toString(),autoreService.searchAllAuthor(pageable), HttpStatus.OK);
+        }catch (Exception e){
+            return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/autore/{id}")
-    public ResponseEntity<Autore>getAuthor(@PathVariable int id) {
+    public ResponseEntity<CustomResponse>getAuthor(@PathVariable int id) {
         try{
-            Autore a = autoreService.searchAuthorById(id);
-            return new ResponseEntity<>(a, HttpStatus.OK);
+            return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.searchAuthorById(id), HttpStatus.OK);
         }
-        catch (NoSuchElementException e){
-            return  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        catch (NotFoundException e){
+            return  CustomResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e){
+            return   CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
 @PostMapping("/autore")
-public void saveAthor(@RequestBody Autore a){
-        autoreService.salvaAutore(a);
+public ResponseEntity<CustomResponse> saveAuthor(@RequestBody Autore a){
+    try{
+        return CustomResponse.success(HttpStatus.OK.toString(),autoreService.salvaAutore(a), HttpStatus.OK);
+    }catch (Exception e){
+        return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
 
 @PutMapping("/autore/{id}")
-    public  Autore updateAthor(@PathVariable int id, @RequestBody Autore autore){
-       return autoreService.updateAutore(id,autore);
+    public  ResponseEntity<CustomResponse>updateAuthor(@PathVariable int id, @RequestBody Autore autore){
+    try{
+        return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.updateAutore(id, autore), HttpStatus.OK);
+    }
+    catch (NotFoundException e){
+        return  CustomResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    catch (Exception e){
+        return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
 
 @DeleteMapping("/autore/{id}")
-    public void deleteAuthor(@PathVariable int id){
-        autoreService.deleteAuthor(id);
+    public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id){
+        try{
+            Autore a = autoreService.searchAuthorById(id);
+            return CustomResponse.emptyResponse("Autore con id "+id+" è stata cancellata", HttpStatus.OK);
+        }
+        catch (NotFoundException e){
+            return  CustomResponse.error(e.getMessage(),HttpStatus.NOT_FOUND);
+        }
+        catch (Exception e){
+            return   CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 }
-
 }
