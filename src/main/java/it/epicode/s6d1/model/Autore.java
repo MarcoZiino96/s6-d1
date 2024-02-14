@@ -29,6 +29,7 @@ public class Autore {
 
 
 
+
     public Autore(String nome, String cognome, String email, LocalDate dataDiNascita){
         this.nome = nome;
         this.cognome = cognome;
@@ -36,6 +37,9 @@ public class Autore {
         this.dataDiNascita = dataDiNascita;
         if (nome != null && cognome != null) {
             this.avatar = "http://ui-avatars.com/api/?name=" + nome +"+"+ cognome;
-        };
+        }
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

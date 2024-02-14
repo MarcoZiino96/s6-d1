@@ -42,6 +42,7 @@ public class AutoreService {
         autore.setCognome(a.getCognome());
         autore.setEmail(a.getEmail());
         autore.setDataDiNascita(a.getDataDiNascita());
+        autore.setAvatar("http://ui-avatars.com/api/?name="+a.getNome()+a.getCognome());
         return autoreRepository.save(autore);
     }
 
