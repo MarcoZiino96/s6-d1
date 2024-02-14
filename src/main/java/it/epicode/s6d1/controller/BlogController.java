@@ -63,7 +63,7 @@ public class BlogController {
             return CustomResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
         }
         catch (Exception e){
-            return CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+            return CustomResponse.error(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

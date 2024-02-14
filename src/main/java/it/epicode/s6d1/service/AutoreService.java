@@ -20,7 +20,7 @@ public class AutoreService {
     @Autowired
     AutoreRepository autoreRepository;
 
-    public Page<Autore> searchAllAuthor(Pageable pagebale){return autoreRepository.findAll(pagebale);}
+    public Page<Autore> searchAllAuthor(Pageable pageabale){return autoreRepository.findAll(pageabale);}
 
     public Autore searchAuthorById(int id) throws NotFoundException {
     return autoreRepository.findById(id).orElseThrow(()-> new NotFoundException("Autore con id "+id+" non trovato"));
@@ -31,8 +31,8 @@ public class AutoreService {
     }
 
     public void deleteAuthor(int id) throws NotFoundException {
-        Autore a = searchAuthorById(id);
-        autoreRepository.delete(a);
+        Autore autore = searchAuthorById(id);
+        autoreRepository.delete(autore);
     }
 
     public Autore updateAutore(int id, Autore a) throws NotFoundException {
@@ -42,7 +42,7 @@ public class AutoreService {
         autore.setCognome(a.getCognome());
         autore.setEmail(a.getEmail());
         autore.setDataDiNascita(a.getDataDiNascita());
-        return autoreRepository.save(a);
+        return autoreRepository.save(autore);
     }
 
 }

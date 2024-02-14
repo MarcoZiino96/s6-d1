@@ -22,8 +22,9 @@ public class AutoreController {
     public ResponseEntity<CustomResponse> getAllAuthors(Pageable pageable) {
         try{
         return CustomResponse.success(HttpStatus.OK.toString(),autoreService.searchAllAuthor(pageable), HttpStatus.OK);
+
         }catch (Exception e){
-            return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+            return  CustomResponse.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,7 +67,7 @@ public ResponseEntity<CustomResponse> saveAuthor(@RequestBody Autore a){
 @DeleteMapping("/autore/{id}")
     public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id){
         try{
-            Autore a = autoreService.searchAuthorById(id);
+             autoreService.deleteAuthor(id);
             return CustomResponse.emptyResponse("Autore con id "+id+" è stata cancellata", HttpStatus.OK);
         }
         catch (NotFoundException e){

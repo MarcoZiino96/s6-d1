@@ -32,10 +32,6 @@ public class CustomResponse {
         CustomResponse objectResponse = new CustomResponse(message, obj);
         return new ResponseEntity<>(objectResponse, httpStatus);
     }
-    public static ResponseEntity<CustomResponse> success(Object obj, HttpStatus httpStatus){
-        CustomResponse objectResponse = new CustomResponse(httpStatus.toString(), obj);
-        return new ResponseEntity<>(objectResponse, httpStatus);
-    }
     public static ResponseEntity<CustomResponse> error(String message, HttpStatus httpStatus){
         CustomResponse objectResponse = new CustomResponse(message);
         return new ResponseEntity<>(objectResponse, httpStatus);
