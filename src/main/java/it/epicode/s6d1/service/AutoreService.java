@@ -59,11 +59,11 @@ public class AutoreService {
 
         return autoreRepository.save(autore);
     }
-    public Autore uploadAvatar(int id, String url) throws NotFoundException {
-        Autore autore = searchAuthorById(id);
-        autore.setAvatar(url);
-        return  autoreRepository.save(autore);
-    }
+   public Autore uploadAvatar(int id, String url) throws NotFoundException {
+       Autore autore = searchAuthorById(id);
+       autore.setAvatar(url);
+       return  autoreRepository.save(autore);
+   }
 
     private void sendMail(String email) {
         SimpleMailMessage message = new SimpleMailMessage();

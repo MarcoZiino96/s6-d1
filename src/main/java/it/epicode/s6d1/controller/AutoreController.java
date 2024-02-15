@@ -8,6 +8,7 @@ import it.epicode.s6d1.model.CustomResponse;
 import it.epicode.s6d1.service.AutoreService;
 import jakarta.mail.Multipart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,37 +35,37 @@ public class AutoreController {
     }
 
     @GetMapping("/autore/{id}")
-    public ResponseEntity<CustomResponse>getAuthor(@PathVariable int id) throws NotFoundException, Exception {
+    public ResponseEntity<CustomResponse>getAuthor(@PathVariable int id){
             return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.searchAuthorById(id), HttpStatus.OK);
     }
 
 
 @PostMapping("/autore")
-public ResponseEntity<CustomResponse> saveAuthor(@RequestBody @Validated AutoreRequest a, BindingResult bindingResult) throws Exception{
+public ResponseEntity<CustomResponse> saveAuthor(@RequestBody @Validated AutoreRequest a, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
-            return CustomResponse.error(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
+            return CustomResponse.error(bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList().toString(), HttpStatus.BAD_REQUEST);
         }
             return CustomResponse.success(HttpStatus.OK.toString(),autoreService.salvaAutore(a), HttpStatus.OK);
 }
 
 @PutMapping("/autore/{id}")
-    public  ResponseEntity<CustomResponse>updateAuthor(@PathVariable int id, @RequestBody @Validated AutoreRequest autore, BindingResult bindingResult) throws NotFoundException, Exception {
+    public  ResponseEntity<CustomResponse>updateAuthor(@PathVariable int id, @RequestBody @Validated AutoreRequest autore, BindingResult bindingResult){
 
         if (bindingResult.hasErrors()){
-            return CustomResponse.error(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
+            return CustomResponse.error(bindingResult.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList().toString(), HttpStatus.BAD_REQUEST);
         }
         return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.updateAutore(id, autore), HttpStatus.OK);
 }
 
 @DeleteMapping("/autore/{id}")
-    public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id) throws NotFoundException, Exception {
+    public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id){
              autoreService.deleteAuthor(id);
             return CustomResponse.emptyResponse("Autore con id "+id+" è stata cancellata", HttpStatus.OK);
 }
 
 
 @PatchMapping("/autore/{id}/upload")
-public ResponseEntity<CustomResponse> uploadAvatar(@PathVariable int id, @RequestParam("uploadAutore") MultipartFile file) throws NotFoundException{
+public ResponseEntity<CustomResponse> uploadAvatar(@PathVariable int id, @RequestParam("uploadAutore") MultipartFile file){
 try{
     Autore autore = autoreService.uploadAvatar(id, (String) cloudinary.uploader().upload(file.getBytes(), new HashMap()).get("url"));
 
