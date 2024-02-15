@@ -1,16 +1,23 @@
 package it.epicode.s6d1.controller;
 
+import com.cloudinary.Cloudinary;
 import it.epicode.s6d1.exception.NotFoundException;
 import it.epicode.s6d1.model.Autore;
+import it.epicode.s6d1.model.AutoreRequest;
 import it.epicode.s6d1.model.CustomResponse;
 import it.epicode.s6d1.service.AutoreService;
+import jakarta.mail.Multipart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-
+import java.io.IOException;
+import java.util.HashMap;
 
 
 @RestController
@@ -18,63 +25,53 @@ public class AutoreController {
     @Autowired
     AutoreService autoreService;
 
+    @Autowired
+    Cloudinary cloudinary;
+
     @GetMapping("/autore")
     public ResponseEntity<CustomResponse> getAllAuthors(Pageable pageable) {
-        try{
         return CustomResponse.success(HttpStatus.OK.toString(),autoreService.searchAllAuthor(pageable), HttpStatus.OK);
-
-        }catch (Exception e){
-            return  CustomResponse.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping("/autore/{id}")
-    public ResponseEntity<CustomResponse>getAuthor(@PathVariable int id) {
-        try{
+    public ResponseEntity<CustomResponse>getAuthor(@PathVariable int id) throws NotFoundException, Exception {
             return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.searchAuthorById(id), HttpStatus.OK);
-        }
-        catch (NotFoundException e){
-            return  CustomResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
-        catch (Exception e){
-            return   CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
 
 @PostMapping("/autore")
-public ResponseEntity<CustomResponse> saveAuthor(@RequestBody Autore a){
-    try{
-        return CustomResponse.success(HttpStatus.OK.toString(),autoreService.salvaAutore(a), HttpStatus.OK);
-    }catch (Exception e){
-        return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+public ResponseEntity<CustomResponse> saveAuthor(@RequestBody @Validated AutoreRequest a, BindingResult bindingResult) throws Exception{
+        if (bindingResult.hasErrors()){
+            return CustomResponse.error(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
+        }
+            return CustomResponse.success(HttpStatus.OK.toString(),autoreService.salvaAutore(a), HttpStatus.OK);
 }
 
 @PutMapping("/autore/{id}")
-    public  ResponseEntity<CustomResponse>updateAuthor(@PathVariable int id, @RequestBody Autore autore){
-    try{
+    public  ResponseEntity<CustomResponse>updateAuthor(@PathVariable int id, @RequestBody @Validated AutoreRequest autore, BindingResult bindingResult) throws NotFoundException, Exception {
+
+        if (bindingResult.hasErrors()){
+            return CustomResponse.error(bindingResult.getAllErrors().toString(), HttpStatus.BAD_REQUEST);
+        }
         return  CustomResponse.success(HttpStatus.OK.toString(), autoreService.updateAutore(id, autore), HttpStatus.OK);
-    }
-    catch (NotFoundException e){
-        return  CustomResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
-    }
-    catch (Exception e){
-        return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 }
 
 @DeleteMapping("/autore/{id}")
-    public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id){
-        try{
+    public ResponseEntity<CustomResponse> deleteAuthor(@PathVariable int id) throws NotFoundException, Exception {
              autoreService.deleteAuthor(id);
             return CustomResponse.emptyResponse("Autore con id "+id+" è stata cancellata", HttpStatus.OK);
-        }
-        catch (NotFoundException e){
-            return  CustomResponse.error(e.getMessage(),HttpStatus.NOT_FOUND);
-        }
-        catch (Exception e){
-            return   CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+}
+
+
+@PatchMapping("/autore/{id}/upload")
+public ResponseEntity<CustomResponse> uploadAvatar(@PathVariable int id, @RequestParam("uploadAutore") MultipartFile file) throws NotFoundException{
+try{
+    Autore autore = autoreService.uploadAvatar(id, (String) cloudinary.uploader().upload(file.getBytes(), new HashMap()).get("url"));
+
+    return  CustomResponse.success(HttpStatus.OK.toString(), autore, HttpStatus.OK);
+}
+catch (IOException e){
+     return  CustomResponse.error(HttpStatus.INTERNAL_SERVER_ERROR);
+}
 }
 }

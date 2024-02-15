@@ -63,5 +63,11 @@ public class BlogService {
         blogRepository.delete(blog);
     }
 
+//    public Blog uploadCover(int id, String url) throws NotFoundException {
+//        Blog blog = searchBlogForId(id);
+//        blog.setCover(url);
+//        return  blogRepository.save(blog);
+//    }
+
 
 }

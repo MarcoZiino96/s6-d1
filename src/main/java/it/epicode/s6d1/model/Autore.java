@@ -11,7 +11,7 @@ import java.util.Random;
 
 @Entity
 @Data
-@NoArgsConstructor
+//@NoArgsConstructor
 public class Autore {
 
     @Id
@@ -30,16 +30,16 @@ public class Autore {
 
 
 
-    public Autore(String nome, String cognome, String email, LocalDate dataDiNascita){
-        this.nome = nome;
-        this.cognome = cognome;
-        this.email = email;
-        this.dataDiNascita = dataDiNascita;
-        if (nome != null && cognome != null) {
-            this.avatar = "http://ui-avatars.com/api/?name=" + nome +"+"+ cognome;
-        }
-    }
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
+//    public Autore(String nome, String cognome, String email, LocalDate dataDiNascita){
+//        this.nome = nome;
+//        this.cognome = cognome;
+//        this.email = email;
+//        this.dataDiNascita = dataDiNascita;
+//        if (nome != null && cognome != null) {
+//            this.avatar = "http://ui-avatars.com/api/?name=" + nome +"+"+ cognome;
+//        }
+//    }
+//    public void setAvatar(String avatar) {
+//        this.avatar = avatar;
+//    }
 }
